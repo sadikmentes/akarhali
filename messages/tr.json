@@ -1,0 +1,182 @@
+{
+  "site": {
+    "name": "Akar Halı",
+    "tagline": "Temizlikte Güvenin Adresi"
+  },
+  "nav": {
+    "home": "Anasayfa",
+    "about": "Hakkımızda",
+    "services": "Hizmetlerimiz",
+    "priceList": "Fiyat Listesi",
+    "campaigns": "Kampanyalar",
+    "gallery": "Galeri",
+    "faq": "Sık Sorulan Sorular",
+    "contact": "İletişim"
+  },
+  "cta": {
+    "call": "Hemen Ara",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "priceList": "Fiyat Listesi",
+    "getQuote": "Teklif Al",
+    "viewAll": "Tümünü Gör",
+    "readMore": "Devamını Oku",
+    "send": "Gönder",
+    "sending": "Gönderiliyor...",
+    "adminLogin": "Yönetici Girişi"
+  },
+  "home": {
+    "hero": {
+      "badge": "20+ Yıllık Tecrübe",
+      "title": "Evinize ve İşyerinize Değer Katan Profesyonel Halı Yıkama",
+      "subtitle": "Fabrika usulü yıkama, ücretsiz alım-teslim ve %100 memnuniyet garantisi ile halı, koltuk, perde ve daha fazlası için güvenilir çözüm ortağınız.",
+      "cta1": "Hemen Ara",
+      "cta2": "WhatsApp'tan Yaz"
+    },
+    "features": {
+      "title": "Neden Akar Halı?",
+      "subtitle": "Kalite ve güvenden ödün vermeden hizmet veriyoruz",
+      "item1Title": "Ücretsiz Alım-Teslim",
+      "item1Desc": "Halılarınızı kapınızdan alıyor, temizledikten sonra tekrar teslim ediyoruz.",
+      "item2Title": "Uzman Ekip",
+      "item2Desc": "Alanında deneyimli, eğitimli personelimizle güvenilir hizmet.",
+      "item3Title": "Modern Ekipman",
+      "item3Desc": "Son teknoloji makinelerle derinlemesine ve hijyenik temizlik.",
+      "item4Title": "Uygun Fiyat",
+      "item4Desc": "Kaliteden ödün vermeden, cebinizi yakmayan fiyatlar."
+    },
+    "process": {
+      "title": "Çalışma Sürecimiz",
+      "subtitle": "Kolay ve hızlı 4 adımda temiz halılara kavuşun",
+      "step1Title": "Sipariş Alın",
+      "step1Desc": "Telefon veya WhatsApp üzerinden randevu oluşturun.",
+      "step2Title": "Ücretsiz Alım",
+      "step2Desc": "Halılarınızı adresinizden ücretsiz olarak teslim alıyoruz.",
+      "step3Title": "Profesyonel Yıkama",
+      "step3Desc": "Fabrikamızda hijyenik koşullarda derinlemesine yıkama yapılır.",
+      "step4Title": "Teslimat",
+      "step4Desc": "Kurutulan halılarınız adresinize teslim edilir."
+    },
+    "stats": {
+      "years": "Yıllık Tecrübe",
+      "clients": "Mutlu Müşteri",
+      "projects": "Tamamlanan İş",
+      "team": "Uzman Personel"
+    },
+    "campaigns": {
+      "title": "Güncel Kampanyalar",
+      "subtitle": "Kaçırılmayacak fırsatları takip edin"
+    },
+    "map": {
+      "title": "Bize Ulaşın",
+      "subtitle": "Mağazamızı ziyaret edin veya bizi arayın"
+    }
+  },
+  "about": {
+    "title": "Hakkımızda",
+    "subtitle": "Akar Halı olarak yılların verdiği tecrübeyle hizmetinizdeyiz"
+  },
+  "services": {
+    "title": "Hizmetlerimiz",
+    "subtitle": "İhtiyacınıza uygun profesyonel temizlik çözümleri",
+    "learnMore": "Detaylı Bilgi"
+  },
+  "priceList": {
+    "title": "Fiyat Listesi",
+    "subtitle": "Şeffaf ve uygun fiyat politikamız",
+    "unit": "Birim",
+    "price": "Fiyat",
+    "campaignPrice": "Kampanyalı Fiyat",
+    "perM2": "m²",
+    "perPiece": "adet"
+  },
+  "campaignsPage": {
+    "title": "Kampanyalar",
+    "subtitle": "Size özel indirim ve fırsatlar",
+    "discount": "İndirim",
+    "validUntil": "Son Geçerlilik",
+    "noCampaigns": "Şu anda aktif kampanya bulunmamaktadır."
+  },
+  "gallery": {
+    "title": "Galeri",
+    "subtitle": "Tamamladığımız işlerden örnekler",
+    "all": "Tümü",
+    "carpet": "Halı",
+    "sofa": "Koltuk",
+    "curtain": "Perde",
+    "before": "Öncesi",
+    "after": "Sonrası"
+  },
+  "faq": {
+    "title": "Sık Sorulan Sorular",
+    "subtitle": "Merak ettiğiniz soruların cevapları burada"
+  },
+  "contact": {
+    "title": "İletişim",
+    "subtitle": "Sorularınız için bize ulaşın",
+    "form": {
+      "name": "Ad Soyad",
+      "phone": "Telefon",
+      "email": "E-posta (opsiyonel)",
+      "message": "Mesajınız",
+      "namePlaceholder": "Adınız Soyadınız",
+      "phonePlaceholder": "05XX XXX XX XX",
+      "emailPlaceholder": "ornek@mail.com",
+      "messagePlaceholder": "Mesajınızı buraya yazın...",
+      "success": "Mesajınız başarıyla gönderildi. En kısa sürede dönüş yapacağız.",
+      "error": "Bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "info": {
+      "title": "İletişim Bilgileri",
+      "workingHours": "Çalışma Saatleri",
+      "address": "Adres",
+      "phone": "Telefon",
+      "email": "E-posta"
+    }
+  },
+  "footer": {
+    "description": "Halı, koltuk, perde ve ev tekstili yıkamada güvenilir çözüm ortağınız.",
+    "quickLinks": "Hızlı Bağlantılar",
+    "services": "Hizmetlerimiz",
+    "contact": "İletişim",
+    "followUs": "Bizi Takip Edin",
+    "rights": "Tüm hakları saklıdır."
+  },
+  "admin": {
+    "login": {
+      "title": "Yönetici Girişi",
+      "subtitle": "Devam etmek için giriş yapın",
+      "email": "E-posta",
+      "password": "Şifre",
+      "submit": "Giriş Yap",
+      "error": "E-posta veya şifre hatalı"
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "prices": "Fiyatlar",
+      "campaigns": "Kampanyalar",
+      "gallery": "Galeri",
+      "services": "Hizmetler",
+      "content": "İçerik Yönetimi",
+      "contact": "İletişim Mesajları",
+      "seo": "SEO",
+      "users": "Kullanıcılar",
+      "logout": "Çıkış Yap",
+      "backToSite": "Siteye Dön"
+    },
+    "common": {
+      "add": "Ekle",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "actions": "İşlemler",
+      "status": "Durum",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "confirmDelete": "Bu kaydı silmek istediğinize emin misiniz?",
+      "noRecords": "Kayıt bulunamadı",
+      "loading": "Yükleniyor..."
+    }
+  }
+}
