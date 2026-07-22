@@ -17,6 +17,7 @@
     "call": "Hemen Ara",
     "whatsapp": "WhatsApp",
     "instagram": "Instagram",
+    "facebook": "Facebook",
     "priceList": "Fiyat Listesi",
     "getQuote": "Teklif Al",
     "viewAll": "Tümünü Gör",
@@ -27,11 +28,14 @@
   },
   "home": {
     "hero": {
-      "badge": "20+ Yıllık Tecrübe",
+      "badge": "16+ Yıllık Tecrübe",
       "title": "Evinize ve İşyerinize Değer Katan Profesyonel Halı Yıkama",
       "subtitle": "Fabrika usulü yıkama, ücretsiz alım-teslim ve %100 memnuniyet garantisi ile halı, koltuk, perde ve daha fazlası için güvenilir çözüm ortağınız.",
       "cta1": "Hemen Ara",
       "cta2": "WhatsApp'tan Yaz"
+    },
+    "video": {
+      "title": "Tanıtım Videomuz"
     },
     "features": {
       "title": "Neden Akar Halı?",

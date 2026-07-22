@@ -75,11 +75,15 @@ export function FaqManager({ faqs }: { faqs: Faq[] }) {
   }, [dialogOpen, editing, form]);
 
   async function onSubmit(values: FaqInput) {
+    // New questions are appended to the end automatically; no manual ordering.
+    const payload = editing
+      ? values
+      : { ...values, order: items.reduce((max, faq) => Math.max(max, faq.order), 0) + 1 };
     const url = editing ? `/api/faqs/${editing.id}` : "/api/faqs";
     const res = await fetch(url, {
       method: editing ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify(payload),
     });
     const json = await res.json();
     if (!res.ok || !json.success) {
@@ -174,7 +178,7 @@ export function FaqManager({ faqs }: { faqs: Faq[] }) {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? "Soruyu Düzenle" : "Yeni Soru"}</DialogTitle>
           </DialogHeader>
@@ -201,19 +205,6 @@ export function FaqManager({ faqs }: { faqs: Faq[] }) {
                     <FormLabel>Cevap</FormLabel>
                     <FormControl>
                       <Textarea rows={3} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sıra</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} value={field.value as number} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

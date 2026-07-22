@@ -28,23 +28,22 @@ export function CampaignSection({ campaigns }: { campaigns: Campaign[] }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group relative overflow-hidden rounded-2xl border shadow-sm"
+                className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-shadow hover:shadow-lg"
               >
-                <div className="relative aspect-4/3">
+                <div className="relative aspect-4/3 bg-muted">
                   <Image
                     src={c.image}
                     alt={title}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                  <span className="absolute top-3 right-3 rounded-full bg-red-500 px-3 py-1 text-sm font-bold text-white">
+                  <span className="absolute top-3 right-3 rounded-full bg-red-500 px-3 py-1 text-sm font-bold text-white shadow">
                     %{c.discountPercent}
                   </span>
-                  <div className="absolute inset-x-0 bottom-0 p-4">
-                    <h3 className="text-lg font-semibold text-white">{title}</h3>
-                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="line-clamp-2 font-semibold">{title}</h3>
                 </div>
               </motion.div>
             );

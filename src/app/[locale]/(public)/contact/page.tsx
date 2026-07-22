@@ -4,8 +4,9 @@ import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { PageHero } from "@/components/shared/page-hero";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
-import { InstagramIcon } from "@/components/shared/social-icons";
+import { FacebookIcon, InstagramIcon } from "@/components/shared/social-icons";
 import { settingsService } from "@/services/settings.service";
+import { whatsappHref, telHref } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("contact");
@@ -31,6 +32,9 @@ export default async function ContactPage() {
 
   const address = contact.addressTr;
   const workingHours = contact.workingHoursTr;
+  const telUrl = telHref(contact.phone);
+  const tel2Url = telHref(contact.phone2);
+  const waUrl = whatsappHref(social.whatsapp);
 
   const mapSrc =
     site.mapEmbedUrl ||
@@ -50,9 +54,17 @@ export default async function ContactPage() {
                 <Phone className="mt-0.5 size-5 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">{t("info.phone")}</p>
-                  <a href={`tel:${contact.phone}`} className="font-medium hover:underline">
+                  <a href={telUrl ?? undefined} className="font-medium hover:underline">
                     {contact.phone}
                   </a>
+                  {contact.phone2 && (
+                    <>
+                      <br />
+                      <a href={tel2Url ?? undefined} className="font-medium hover:underline">
+                        {contact.phone2}
+                      </a>
+                    </>
+                  )}
                 </div>
               </li>
             )}
@@ -112,21 +124,21 @@ export default async function ContactPage() {
           </p>
 
           <div className="mt-2 flex flex-col gap-3">
-            {contact.phone && (
+            {telUrl && (
               <Button asChild size="lg" className="w-full">
-                <a href={`tel:${contact.phone}`}>
+                <a href={telUrl}>
                   <Phone className="size-5" />
                   {tCta("call")}
                 </a>
               </Button>
             )}
-            {social.whatsapp && (
+            {waUrl && (
               <Button
                 asChild
                 size="lg"
                 className="w-full bg-[#25D366] text-white hover:bg-[#1eb959]"
               >
-                <a href={social.whatsapp} target="_blank" rel="noopener noreferrer">
+                <a href={waUrl} target="_blank" rel="noopener noreferrer">
                   <WhatsAppIcon className="size-5" />
                   {tCta("whatsapp")}
                 </a>
@@ -142,6 +154,19 @@ export default async function ContactPage() {
                 <a href={social.instagram} target="_blank" rel="noopener noreferrer">
                   <InstagramIcon className="size-5" />
                   {tCta("instagram")}
+                </a>
+              </Button>
+            )}
+            {social.facebook && (
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full"
+              >
+                <a href={social.facebook} target="_blank" rel="noopener noreferrer">
+                  <FacebookIcon className="size-5" />
+                  {tCta("facebook")}
                 </a>
               </Button>
             )}

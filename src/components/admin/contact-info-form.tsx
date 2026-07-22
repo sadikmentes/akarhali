@@ -13,6 +13,7 @@ import type { ContactInfo, SocialLinks } from "@/types";
 
 type FormValues = {
   phone: string;
+  phone2: string;
   whatsapp: string;
   email: string;
   addressTr: string;
@@ -35,6 +36,7 @@ export function ContactInfoForm({
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       phone: contact.phone ?? "",
+      phone2: contact.phone2 ?? "",
       whatsapp: contact.whatsapp ?? "",
       email: contact.email ?? "",
       addressTr: contact.addressTr ?? "",
@@ -54,6 +56,7 @@ export function ContactInfoForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phone: values.phone,
+          phone2: values.phone2,
           whatsapp: values.whatsapp,
           email: values.email,
           addressTr: values.addressTr,
@@ -91,8 +94,12 @@ export function ContactInfoForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label>Telefon</Label>
-            <Input {...register("phone")} />
+            <Label>Telefon 1</Label>
+            <Input placeholder="+90 555 000 00 00" {...register("phone")} />
+          </div>
+          <div className="space-y-2">
+            <Label>Telefon 2 (opsiyonel)</Label>
+            <Input placeholder="+90 555 000 00 01" {...register("phone2")} />
           </div>
           <div className="space-y-2">
             <Label>WhatsApp Numarası</Label>

@@ -5,13 +5,28 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { GALLERY_CATEGORY_LABELS } from "@/constants/site";
 import type { GalleryImage } from "@/types";
 
-const CATEGORIES = ["ALL", "CARPET", "SOFA", "CURTAIN"] as const;
+// Canonical display order for the gallery filter tabs.
+const CATEGORY_ORDER = [
+  "CARPET",
+  "SOFA",
+  "CURTAIN",
+  "YATAK",
+  "YORGAN",
+  "BATTANIYE",
+  "SANDALYE",
+  "YASTIK",
+] as const;
 
 export function GalleryGrid({ images }: { images: GalleryImage[] }) {
   const t = useTranslations("gallery");
-  const [active, setActive] = useState<(typeof CATEGORIES)[number]>("ALL");
+  const [active, setActive] = useState<string>("ALL");
+
+  // Only show tabs for categories that actually have images.
+  const present = CATEGORY_ORDER.filter((cat) => images.some((img) => img.category === cat));
+  const tabs = ["ALL", ...present];
 
   const filtered =
     active === "ALL"
@@ -21,7 +36,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
   return (
     <div>
       <div className="mb-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Galeri kategorileri">
-        {CATEGORIES.map((cat) => (
+        {tabs.map((cat) => (
           <button
             key={cat}
             role="tab"
@@ -34,7 +49,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
                 : "bg-muted hover:bg-muted/70"
             )}
           >
-            {t(cat.toLowerCase() as "all")}
+            {cat === "ALL" ? t("all") : GALLERY_CATEGORY_LABELS[cat]}
           </button>
         ))}
       </div>

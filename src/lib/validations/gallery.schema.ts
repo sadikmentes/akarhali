@@ -1,6 +1,17 @@
 import { z } from "zod";
 
-export const galleryCategorySchema = z.enum(["CARPET", "SOFA", "CURTAIN", "BEFORE", "AFTER"]);
+export const galleryCategorySchema = z.enum([
+  "CARPET",
+  "SOFA",
+  "CURTAIN",
+  "YATAK",
+  "YORGAN",
+  "BATTANIYE",
+  "SANDALYE",
+  "YASTIK",
+  "BEFORE",
+  "AFTER",
+]);
 
 export const galleryImageSchema = z.object({
   url: z.string().min(1),

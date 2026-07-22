@@ -15,13 +15,14 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { NAV_ITEMS, SITE_CONFIG } from "@/constants/site";
-import { cn } from "@/lib/utils";
+import { cn, telHref } from "@/lib/utils";
 
-export function Navbar() {
+export function Navbar({ phone }: { phone?: string | null }) {
   const t = useTranslations("nav");
   const tCta = useTranslations("cta");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const telUrl = telHref(phone);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/60 dark:bg-background/72 dark:supports-backdrop-filter:bg-background/65">
@@ -73,12 +74,14 @@ export function Navbar() {
               <LogIn className="size-5" />
             </NextLink>
           </Button>
-          <Button asChild className="ml-1 hidden sm:inline-flex">
-            <a href="tel:+905550000000">
-              <Phone className="size-4" />
-              {tCta("call")}
-            </a>
-          </Button>
+          {telUrl && (
+            <Button asChild className="ml-1 hidden sm:inline-flex">
+              <a href={telUrl}>
+                <Phone className="size-4" />
+                {tCta("call")}
+              </a>
+            </Button>
+          )}
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -102,12 +105,14 @@ export function Navbar() {
                     {t(item.key)}
                   </Link>
                 ))}
-                <Button asChild className="mt-4">
-                  <a href="tel:+905550000000">
-                    <Phone className="size-4" />
-                    {tCta("call")}
-                  </a>
-                </Button>
+                {telUrl && (
+                  <Button asChild className="mt-4">
+                    <a href={telUrl}>
+                      <Phone className="size-4" />
+                      {tCta("call")}
+                    </a>
+                  </Button>
+                )}
                 <Button asChild variant="outline" className="mt-1">
                   <NextLink href="/admin/login" onClick={() => setOpen(false)}>
                     <LogIn className="size-4" />

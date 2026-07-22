@@ -24,33 +24,35 @@ export default async function CampaignsPage() {
         {campaigns.length === 0 ? (
           <p className="text-center text-muted-foreground">{t("noCampaigns")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-7 sm:grid-cols-2">
             {campaigns.map((c) => {
               const title = c.titleTr;
               const description = c.descriptionTr;
               return (
                 <div
                   key={c.id}
-                  className="overflow-hidden rounded-2xl border bg-card shadow-sm"
+                  className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm"
                 >
-                  <div className="relative aspect-4/3">
+                  <div className="relative aspect-[4/5] bg-muted">
                     <Image
                       src={c.image}
                       alt={title}
                       fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-contain"
                     />
-                    <span className="absolute top-3 right-3 rounded-full bg-red-500 px-3 py-1 text-sm font-bold text-white">
+                    <span className="absolute top-3 right-3 rounded-full bg-red-500 px-3 py-1 text-sm font-bold text-white shadow">
                       %{c.discountPercent} {t("discount")}
                     </span>
                   </div>
-                  <div className="p-5">
+                  <div className="flex flex-1 flex-col p-5">
                     <h3 className="mb-2 text-lg font-semibold">{title}</h3>
                     {description && (
-                      <p className="mb-3 text-sm text-muted-foreground">{description}</p>
+                      <p className="mb-3 whitespace-pre-line text-sm text-muted-foreground">
+                        {description}
+                      </p>
                     )}
-                    <p className="text-xs text-muted-foreground">
+                    <p className="mt-auto pt-2 text-xs text-muted-foreground">
                       {t("validUntil")}: {format(c.endDate, "d MMMM yyyy", { locale: dateLocale })}
                     </p>
                   </div>

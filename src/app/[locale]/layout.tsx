@@ -101,18 +101,19 @@ export default async function LocaleLayout({
       <body className="flex min-h-full flex-col">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <NextIntlClientProvider>
-            <Navbar />
+            <Navbar phone={contact?.phone} />
             <main className="flex-1">{children}</main>
             <Footer />
             <FloatingButtons
               whatsapp={social?.whatsapp}
               phone={contact?.phone}
               instagram={social?.instagram}
+              facebook={social?.facebook}
             />
             <Toaster richColors position="top-center" />
           </NextIntlClientProvider>

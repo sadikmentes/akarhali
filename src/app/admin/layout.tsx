@@ -34,8 +34,8 @@ export default function AdminRootLayout({
       <body className="flex min-h-full flex-col bg-muted/20">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

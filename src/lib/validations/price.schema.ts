@@ -17,8 +17,8 @@ export type PriceInput = z.infer<typeof priceSchema>;
 export type PriceFormInput = z.input<typeof priceSchema>;
 
 export const categorySchema = z.object({
-  slug: z.string().min(2),
-  nameTr: z.string().min(2),
+  slug: z.string().optional(),
+  nameTr: z.string().min(2, "Ad en az 2 karakter olmalı"),
   nameEn: z.string().optional(),
   order: z.coerce.number().int().default(0),
 });

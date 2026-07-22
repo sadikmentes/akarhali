@@ -5,6 +5,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "@/components/shared/social-icons";
 import { NAV_ITEMS, SITE_CONFIG } from "@/constants/site";
 import { settingsService } from "@/services/settings.service";
+import { telHref } from "@/lib/utils";
 
 export async function Footer() {
   const t = await getTranslations("footer");
@@ -55,8 +56,16 @@ export async function Footer() {
             {contact.phone && (
               <li className="flex items-center gap-2">
                 <Phone className="size-4 shrink-0" />
-                <a href={`tel:${contact.phone}`} className="hover:text-foreground">
+                <a href={telHref(contact.phone) ?? undefined} className="hover:text-foreground">
                   {contact.phone}
+                </a>
+              </li>
+            )}
+            {contact.phone2 && (
+              <li className="flex items-center gap-2">
+                <Phone className="size-4 shrink-0" />
+                <a href={telHref(contact.phone2) ?? undefined} className="hover:text-foreground">
+                  {contact.phone2}
                 </a>
               </li>
             )}

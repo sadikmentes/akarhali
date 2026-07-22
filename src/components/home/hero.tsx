@@ -7,8 +7,12 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { whatsappHref, telHref } from "@/lib/utils";
 
-const SLIDES = [
+type Slide = { src: string; alt: string };
+
+// Shown only when the admin has not uploaded any slider images yet.
+const DEFAULT_SLIDES: Slide[] = [
   {
     src: "/images/hero-facility.jpg",
     alt: "Akar Halı yıkama tesisi ve profesyonel temizlik hattı",
@@ -27,20 +31,29 @@ type HeroProps = {
   title: string;
   subtitle: string;
   whatsapp?: string | null;
+  phone?: string | null;
+  slides?: Slide[];
 };
 
-export function Hero({ title, subtitle, whatsapp }: HeroProps) {
+export function Hero({ title, subtitle, whatsapp, phone, slides }: HeroProps) {
   const t = useTranslations("home.hero");
+  const SLIDES = slides && slides.length > 0 ? slides : DEFAULT_SLIDES;
+  const slideCount = SLIDES.length;
   const [slide, setSlide] = useState(0);
+  const waUrl = whatsappHref(whatsapp);
+  const telUrl = telHref(phone);
 
   useEffect(() => {
-    const id = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 5000);
+    if (slideCount <= 1) return;
+    const id = setInterval(() => setSlide((s) => (s + 1) % slideCount), 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [slideCount]);
 
   return (
     <section className="relative isolate overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+      {/* Masaüstü: görsel arka plan, yazılar üstünde. Telefonda bu blok gizlenir
+          çünkü dar ekranda yatay bir görsel arka planda çok küçük kalıyordu. */}
+      <div className="absolute inset-0 -z-10 hidden lg:block">
         <AnimatePresence mode="wait">
           <motion.div
             key={slide}
@@ -50,22 +63,51 @@ export function Hero({ title, subtitle, whatsapp }: HeroProps) {
             transition={{ duration: 1.2, ease: "easeInOut" }}
             className="absolute inset-0"
           >
+            {/* Arka plan: aynı görselin bulanık, kutuyu dolduran kopyası.
+                Öndeki görsel object-contain olduğu için kenarlarda kalan
+                boşluğu doldurur, böylece kırpma da boş şerit de olmaz. */}
+            <Image
+              src={SLIDES[slide].src}
+              alt=""
+              aria-hidden
+              fill
+              sizes="100vw"
+              className="scale-110 object-cover blur-xl"
+            />
+            {/* object-contain: görselin tamamı görünür, hiçbir yeri kesilmez. */}
             <Image
               src={SLIDES[slide].src}
               alt={SLIDES[slide].alt}
               fill
               priority={slide === 0}
               sizes="100vw"
-              className="object-cover object-top"
+              className="object-contain"
             />
           </motion.div>
         </AnimatePresence>
-        <div className="absolute inset-0 bg-slate-950/45" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,_rgba(8,47,73,0.76)_0%,_rgba(14,116,144,0.54)_42%,_rgba(13,148,136,0.32)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18),_transparent_52%)]" />
+        {/* Karartma katmanları: görsel daha net görünsün diye hafif tutuldu,
+            yazılar okunur kalsın diye tamamen kaldırılmadı. */}
+        <div className="absolute inset-0 bg-slate-950/25" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,_rgba(8,47,73,0.45)_0%,_rgba(14,116,144,0.30)_42%,_rgba(13,148,136,0.16)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_52%)]" />
       </div>
 
-      <div className="mx-auto flex min-h-[620px] max-w-7xl flex-col items-center justify-center gap-6 px-4 py-24 text-center sm:min-h-[680px] sm:px-6 sm:py-32 lg:px-8">
+      {/* Telefon: görsel akışta ve kendi oranıyla, yani tam genişlikte ve
+          hiç kırpılmadan görünür. Yazılar aşağıdaki koyu bloğa iner. */}
+      <div className="bg-slate-950 lg:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <motion.img
+          key={SLIDES[slide].src}
+          src={SLIDES[slide].src}
+          alt={SLIDES[slide].alt}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          className="block h-auto w-full"
+        />
+      </div>
+
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-6 bg-[linear-gradient(135deg,_rgba(8,47,73,1)_0%,_rgba(14,116,144,0.95)_100%)] px-4 py-12 text-center sm:px-6 lg:min-h-[680px] lg:bg-none lg:px-8 lg:py-32">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -100,20 +142,22 @@ export function Hero({ title, subtitle, whatsapp }: HeroProps) {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex flex-wrap items-center justify-center gap-3 pt-4"
         >
-          <Button size="lg" asChild className="bg-white text-slate-900 hover:bg-white/90">
-            <a href="tel:+905550000000">
-              <Phone className="size-5" />
-              {t("cta1")}
-            </a>
-          </Button>
-          {whatsapp && (
+          {telUrl && (
+            <Button size="lg" asChild className="bg-white text-slate-900 hover:bg-white/90">
+              <a href={telUrl}>
+                <Phone className="size-5" />
+                {t("cta1")}
+              </a>
+            </Button>
+          )}
+          {waUrl && (
             <Button
               size="lg"
               variant="outline"
               asChild
               className="border-white/40 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white"
             >
-              <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+              <a href={waUrl} target="_blank" rel="noopener noreferrer">
                 {t("cta2")}
               </a>
             </Button>

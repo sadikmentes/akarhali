@@ -5,13 +5,20 @@ import path from "node:path";
 import { uploadImage } from "@/lib/cloudinary";
 import { requireAdmin } from "@/lib/api-guard";
 
-const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
-const EXTENSIONS: Record<string, string> = {
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024; // 8MB
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+
+const IMAGE_EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
   "image/avif": "avif",
+};
+
+const VIDEO_EXTENSIONS: Record<string, string> = {
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+  "video/quicktime": "mov",
 };
 
 function hasCloudinaryConfig() {
@@ -26,9 +33,8 @@ function safeFolderName(folder: string) {
   return folder.replace(/[^a-z0-9_-]/gi, "").toLowerCase() || "misc";
 }
 
-async function uploadLocal(fileBuffer: Buffer, folder: string, fileType: string) {
+async function uploadLocal(fileBuffer: Buffer, folder: string, extension: string) {
   const safeFolder = safeFolderName(folder);
-  const extension = EXTENSIONS[fileType] ?? "jpg";
   const fileName = `${Date.now()}-${randomUUID()}.${extension}`;
   const appRoot = process.env.APP_ROOT || process.cwd();
   const uploadDir = path.join(appRoot, "public", "uploads", safeFolder);
@@ -54,25 +60,37 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Dosya bulunamadı" }, { status: 400 });
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  const isImage = file.type in IMAGE_EXTENSIONS;
+  const isVideo = file.type in VIDEO_EXTENSIONS;
+
+  if (!isImage && !isVideo) {
     return NextResponse.json(
-      { success: false, error: "Yalnızca JPEG, PNG, WEBP veya AVIF dosyaları kabul edilir" },
+      { success: false, error: "Yalnızca görsel (JPEG, PNG, WEBP) veya video (MP4, WEBM) dosyaları kabul edilir" },
       { status: 400 }
     );
   }
 
-  if (file.size > MAX_FILE_SIZE) {
+  const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+  if (file.size > maxSize) {
     return NextResponse.json(
-      { success: false, error: "Dosya boyutu 8MB'ı aşamaz" },
+      { success: false, error: isVideo ? "Video boyutu 100MB'ı aşamaz" : "Dosya boyutu 8MB'ı aşamaz" },
       { status: 400 }
     );
   }
 
   try {
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Videos are always stored locally under public/uploads (Cloudinary's image
+    // upload endpoint does not accept video); images use Cloudinary when configured.
+    if (isVideo) {
+      const result = await uploadLocal(buffer, folder, VIDEO_EXTENSIONS[file.type]);
+      return NextResponse.json({ success: true, data: result });
+    }
+
     const result = hasCloudinaryConfig()
       ? await uploadImage(buffer, folder)
-      : await uploadLocal(buffer, folder, file.type);
+      : await uploadLocal(buffer, folder, IMAGE_EXTENSIONS[file.type]);
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {

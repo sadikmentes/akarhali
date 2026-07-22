@@ -1,18 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CornerDownRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
 import { ServiceFormDialog } from "@/components/admin/service-form-dialog";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import type { Service } from "@/types";
@@ -21,12 +13,29 @@ export function ServicesManager({ services }: { services: Service[] }) {
   const [items, setItems] = useState(services);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [defaultParentId, setDefaultParentId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setItems(services);
   }, [services]);
+
+  const mainServices = useMemo(
+    () => items.filter((s) => !s.parentId).sort((a, b) => a.order - b.order),
+    [items]
+  );
+  const childrenByParent = useMemo(() => {
+    const map = new Map<string, Service[]>();
+    for (const s of items) {
+      if (!s.parentId) continue;
+      const list = map.get(s.parentId) ?? [];
+      list.push(s);
+      map.set(s.parentId, list);
+    }
+    for (const list of map.values()) list.sort((a, b) => a.order - b.order);
+    return map;
+  }, [items]);
 
   async function handleSubmit(values: Record<string, unknown>) {
     const url = editingService ? `/api/services/${editingService.id}` : "/api/services";
@@ -44,10 +53,8 @@ export function ServicesManager({ services }: { services: Service[] }) {
     toast.success(editingService ? "Hizmet güncellendi" : "Hizmet eklendi");
     setItems((current) =>
       editingService
-        ? current
-            .map((service) => (service.id === json.data.id ? json.data : service))
-            .sort((a, b) => a.order - b.order)
-        : [...current, json.data].sort((a, b) => a.order - b.order)
+        ? current.map((service) => (service.id === json.data.id ? json.data : service))
+        : [...current, json.data]
     );
   }
 
@@ -61,78 +68,114 @@ export function ServicesManager({ services }: { services: Service[] }) {
       return;
     }
     toast.success("Hizmet silindi");
-    setItems((current) => current.filter((service) => service.id !== deleteTarget.id));
+    // A deleted main service takes its sub-services with it (DB cascade).
+    setItems((current) =>
+      current.filter((s) => s.id !== deleteTarget.id && s.parentId !== deleteTarget.id)
+    );
     setDeleteTarget(null);
+  }
+
+  function openCreate(parentId: string | null) {
+    setEditingService(null);
+    setDefaultParentId(parentId);
+    setDialogOpen(true);
+  }
+
+  function openEdit(service: Service) {
+    setEditingService(service);
+    setDefaultParentId(null);
+    setDialogOpen(true);
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button
-          onClick={() => {
-            setEditingService(null);
-            setDialogOpen(true);
-          }}
-        >
+        <Button onClick={() => openCreate(null)}>
           <Plus className="size-4" />
-          Yeni Hizmet
+          Yeni Ana Hizmet
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Başlık</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>Durum</TableHead>
-              <TableHead className="text-right">İşlemler</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((service) => (
-              <TableRow key={service.id}>
-                <TableCell>{service.titleTr}</TableCell>
-                <TableCell className="text-muted-foreground">{service.slug}</TableCell>
-                <TableCell>
-                  <Badge variant={service.isActive ? "default" : "secondary"}>
-                    {service.isActive ? "Aktif" : "Pasif"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
+      <div className="space-y-3">
+        {mainServices.map((service) => {
+          const subs = childrenByParent.get(service.id) ?? [];
+          return (
+            <div key={service.id} className="overflow-hidden rounded-xl border bg-card">
+              <div className="flex items-center gap-3 p-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-semibold">{service.titleTr}</span>
+                    <Badge variant={service.isActive ? "default" : "secondary"}>
+                      {service.isActive ? "Aktif" : "Pasif"}
+                    </Badge>
+                  </div>
+                  {service.descriptionTr && (
+                    <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                      {service.descriptionTr}
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Düzenle"
-                    onClick={() => {
-                      setEditingService(service);
-                      setDialogOpen(true);
-                    }}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openCreate(service.id)}
                   >
+                    <Plus className="size-4" />
+                    Alt Hizmet
+                  </Button>
+                  <Button variant="ghost" size="icon" aria-label="Düzenle" onClick={() => openEdit(service)}>
                     <Pencil className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Sil"
-                    onClick={() => setDeleteTarget(service)}
-                  >
+                  <Button variant="ghost" size="icon" aria-label="Sil" onClick={() => setDeleteTarget(service)}>
                     <Trash2 className="size-4 text-destructive" />
                   </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {items.length === 0 && (
-          <p className="p-8 text-center text-muted-foreground">Henüz hizmet eklenmedi.</p>
-        )}
+                </div>
+              </div>
+
+              {subs.length > 0 && (
+                <div className="divide-y border-t bg-muted/30">
+                  {subs.map((sub) => (
+                    <div key={sub.id} className="flex items-center gap-3 py-2.5 pr-3 pl-6">
+                      <CornerDownRight className="size-4 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-medium">{sub.titleTr}</span>
+                          {!sub.isActive && <Badge variant="secondary">Pasif</Badge>}
+                        </div>
+                        {sub.descriptionTr && (
+                          <p className="truncate text-xs text-muted-foreground">{sub.descriptionTr}</p>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <Button variant="ghost" size="icon" aria-label="Düzenle" onClick={() => openEdit(sub)}>
+                          <Pencil className="size-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" aria-label="Sil" onClick={() => setDeleteTarget(sub)}>
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {mainServices.length === 0 && (
+        <p className="rounded-xl border p-8 text-center text-muted-foreground">
+          Henüz hizmet eklenmedi.
+        </p>
+      )}
 
       <ServiceFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         editingService={editingService}
+        mainServices={mainServices}
+        defaultParentId={defaultParentId}
         onSubmit={handleSubmit}
       />
 
@@ -140,7 +183,11 @@ export function ServicesManager({ services }: { services: Service[] }) {
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Hizmeti sil"
-        description={`"${deleteTarget?.titleTr}" hizmetini silmek istediğinize emin misiniz?`}
+        description={
+          deleteTarget && !deleteTarget.parentId && (childrenByParent.get(deleteTarget.id)?.length ?? 0) > 0
+            ? `"${deleteTarget?.titleTr}" ana hizmetini ve tüm alt hizmetlerini silmek istediğinize emin misiniz?`
+            : `"${deleteTarget?.titleTr}" hizmetini silmek istediğinize emin misiniz?`
+        }
         isLoading={isDeleting}
         onConfirm={handleDelete}
       />

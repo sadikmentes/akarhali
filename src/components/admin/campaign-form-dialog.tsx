@@ -99,7 +99,7 @@ export function CampaignFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{editingCampaign ? "Kampanyayı Düzenle" : "Yeni Kampanya"}</DialogTitle>
         </DialogHeader>

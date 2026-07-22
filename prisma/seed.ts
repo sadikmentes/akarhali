@@ -29,10 +29,10 @@ async function main() {
       aboutTitleTr: "Hakkımızda",
       aboutTitleEn: "Hakkımızda",
       aboutContentTr:
-        "Akar Halı olarak 20 yılı aşkın tecrübemizle halı, koltuk, perde ve ev tekstili yıkamada güvenilir çözüm ortağınızız.",
+        "Akar Halı olarak 16 yılı aşkın tecrübemizle halı, koltuk, perde ve ev tekstili yıkamada güvenilir çözüm ortağınızız.",
       aboutContentEn:
-        "Akar Halı olarak 20 yılı aşkın tecrübemizle halı, koltuk, perde ve ev tekstili yıkamada güvenilir çözüm ortağınızız.",
-      statsYearsExp: 20,
+        "Akar Halı olarak 16 yılı aşkın tecrübemizle halı, koltuk, perde ve ev tekstili yıkamada güvenilir çözüm ortağınızız.",
+      statsYearsExp: 16,
       statsHappyClients: 8500,
       statsProjectsDone: 15000,
       statsTeamMembers: 25,
@@ -88,9 +88,11 @@ async function main() {
     { slug: "hali-yikama", titleTr: "Halı Yıkama", titleEn: "Halı Yıkama", order: 1 },
     { slug: "koltuk-yikama", titleTr: "Koltuk Yıkama", titleEn: "Koltuk Yıkama", order: 2 },
     { slug: "perde-yikama", titleTr: "Perde Yıkama", titleEn: "Perde Yıkama", order: 3 },
-    { slug: "battaniye-yikama", titleTr: "Battaniye Yıkama", titleEn: "Battaniye Yıkama", order: 4 },
+    { slug: "yatak-yikama", titleTr: "Yatak Yıkama", titleEn: "Yatak Yıkama", order: 4 },
     { slug: "yorgan-yikama", titleTr: "Yorgan Yıkama", titleEn: "Yorgan Yıkama", order: 5 },
-    { slug: "yatak-yikama", titleTr: "Yatak Yıkama", titleEn: "Yatak Yıkama", order: 6 },
+    { slug: "sandalye-yikama", titleTr: "Sandalye Yıkama", titleEn: "Sandalye Yıkama", order: 6 },
+    { slug: "yastik-yikama", titleTr: "Yastık Yıkama", titleEn: "Yastık Yıkama", order: 7 },
+    { slug: "overlok", titleTr: "Overlok", titleEn: "Overlok", order: 8 },
   ];
 
   for (const s of services) {
@@ -108,72 +110,86 @@ async function main() {
     });
   }
 
+  // Broad, customer-facing groupings for the public price list.
   const categories = [
-    { slug: "makine-hali", nameTr: "Makine Halısı", nameEn: "Makine Halısı", order: 1 },
-    { slug: "el-dokuma", nameTr: "El Dokuma Halı", nameEn: "El Dokuma Halı", order: 2 },
-    { slug: "shaggy", nameTr: "Shaggy", nameEn: "Shaggy", order: 3 },
-    { slug: "yun", nameTr: "Yün Halı", nameEn: "Yün Halı", order: 4 },
-    { slug: "bambu", nameTr: "Bambu Halı", nameEn: "Bambu Halı", order: 5 },
-    { slug: "ipek", nameTr: "İpek Halı", nameEn: "İpek Halı", order: 6 },
+    { slug: "hali", nameTr: "Halı Yıkama", nameEn: "Carpet Cleaning", order: 1 },
+    { slug: "koltuk-mobilya", nameTr: "Koltuk & Mobilya", nameEn: "Sofa & Furniture", order: 2 },
+    { slug: "yatak", nameTr: "Yatak Yıkama", nameEn: "Mattress Cleaning", order: 3 },
+    { slug: "yorgan-battaniye", nameTr: "Yorgan & Battaniye", nameEn: "Quilt & Blanket", order: 4 },
+    { slug: "perde", nameTr: "Perde Yıkama", nameEn: "Curtain Cleaning", order: 5 },
+    { slug: "ek-hizmetler", nameTr: "Ek Hizmetler", nameEn: "Additional Services", order: 6 },
   ];
 
   for (const c of categories) {
     await prisma.category.upsert({
       where: { slug: c.slug },
-      update: {},
+      update: { nameTr: c.nameTr, nameEn: c.nameEn, order: c.order },
       create: c,
     });
   }
 
-  // ---- Prices (only seed if empty, so re-running the seed is safe) ----
-  if ((await prisma.price.count()) === 0) {
-    const carpetService = await prisma.service.findUnique({ where: { slug: "hali-yikama" } });
-    const sofaService = await prisma.service.findUnique({ where: { slug: "koltuk-yikama" } });
-    const curtainService = await prisma.service.findUnique({ where: { slug: "perde-yikama" } });
-    const machineCategory = await prisma.category.findUnique({ where: { slug: "makine-hali" } });
-    const handmadeCategory = await prisma.category.findUnique({ where: { slug: "el-dokuma" } });
-    const woolCategory = await prisma.category.findUnique({ where: { slug: "yun" } });
-    const silkCategory = await prisma.category.findUnique({ where: { slug: "ipek" } });
+  // ---- Prices: resync from the shop's current price list every run ----
+  // [categorySlug, serviceSlug, nameTr, unit, basePrice]
+  const priceRows: Array<[string, string, string, "M2" | "PIECE", number]> = [
+    // Halı Yıkama
+    ["hali", "hali-yikama", "Makine Halı", "M2", 90],
+    ["hali", "hali-yikama", "Akrilik Halı", "M2", 120],
+    ["hali", "hali-yikama", "Shaggy Halı", "M2", 120],
+    ["hali", "hali-yikama", "Step Halı", "M2", 120],
+    ["hali", "hali-yikama", "El Dokuma Halı", "M2", 140],
+    ["hali", "hali-yikama", "Yün Halı", "M2", 150],
+    ["hali", "hali-yikama", "Bambu Halı", "M2", 180],
+    ["hali", "hali-yikama", "Tek Parça Halı", "PIECE", 600],
+    ["hali", "hali-yikama", "Kendin Getir (İndirimli)", "M2", 80],
+    // Koltuk & Mobilya
+    ["koltuk-mobilya", "koltuk-yikama", "Koltuk Takımı", "PIECE", 2000],
+    ["koltuk-mobilya", "sandalye-yikama", "Sandalye", "PIECE", 175],
+    ["koltuk-mobilya", "yastik-yikama", "Yastık", "PIECE", 200],
+    // Yatak
+    ["yatak", "yatak-yikama", "Tek Kişilik Yatak", "PIECE", 1000],
+    ["yatak", "yatak-yikama", "Çift Kişilik Yatak", "PIECE", 1750],
+    // Yorgan & Battaniye
+    ["yorgan-battaniye", "yorgan-yikama", "Yün Yorgan", "PIECE", 750],
+    ["yorgan-battaniye", "yorgan-yikama", "Elyaf Yorgan", "PIECE", 600],
+    ["yorgan-battaniye", "yorgan-yikama", "Battaniye", "PIECE", 600],
+    // Perde
+    ["perde", "perde-yikama", "Stor Perde", "M2", 120],
+    ["perde", "perde-yikama", "Zebra Perde", "M2", 140],
+    // Ek Hizmetler
+    ["ek-hizmetler", "overlok", "Overlok", "M2", 120],
+    ["ek-hizmetler", "hali-yikama", "Yerinde Yıkama", "M2", 150],
+  ];
 
-    const priceData = [
-      carpetService && machineCategory && {
-        serviceId: carpetService.id, categoryId: machineCategory.id,
-        nameTr: "Makine Halısı Yıkama", nameEn: "Makine Halısı Yıkama",
-        unit: "M2" as const, basePrice: 90, isActive: true, order: 1,
-      },
-      carpetService && woolCategory && {
-        serviceId: carpetService.id, categoryId: woolCategory.id,
-        nameTr: "Yün Halı Yıkama", nameEn: "Yün Halı Yıkama",
-        unit: "M2" as const, basePrice: 130, discountPrice: 99, isCampaignActive: true, isActive: true, order: 2,
-      },
-      carpetService && handmadeCategory && {
-        serviceId: carpetService.id, categoryId: handmadeCategory.id,
-        nameTr: "El Dokuma Halı Yıkama", nameEn: "El Dokuma Halı Yıkama",
-        unit: "M2" as const, basePrice: 150, isActive: true, order: 3,
-      },
-      carpetService && silkCategory && {
-        serviceId: carpetService.id, categoryId: silkCategory.id,
-        nameTr: "İpek Halı Yıkama", nameEn: "İpek Halı Yıkama",
-        unit: "M2" as const, basePrice: 220, isActive: true, order: 4,
-      },
-      sofaService && {
-        serviceId: sofaService.id, nameTr: "Tekli Koltuk Yıkama", nameEn: "Tekli Koltuk Yıkama",
-        unit: "PIECE" as const, basePrice: 350, isActive: true, order: 1,
-      },
-      sofaService && {
-        serviceId: sofaService.id, nameTr: "Üçlü Koltuk Yıkama", nameEn: "Üçlü Koltuk Yıkama",
-        unit: "PIECE" as const, basePrice: 750, isActive: true, order: 2,
-      },
-      curtainService && {
-        serviceId: curtainService.id, nameTr: "Perde Yıkama", nameEn: "Perde Yıkama",
-        unit: "M2" as const, basePrice: 60, isActive: true, order: 1,
-      },
-    ].filter(Boolean) as Array<Record<string, unknown>>;
+  const serviceBySlug = Object.fromEntries(
+    (await prisma.service.findMany()).map((s) => [s.slug, s.id]),
+  );
+  const categoryBySlug = Object.fromEntries(
+    (await prisma.category.findMany()).map((c) => [c.slug, c.id]),
+  );
 
-    for (const p of priceData) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await prisma.price.create({ data: p as any });
+  await prisma.price.deleteMany();
+  let order = 0;
+  let currentCategory = "";
+  for (const [catSlug, svcSlug, nameTr, unit, basePrice] of priceRows) {
+    const serviceId = serviceBySlug[svcSlug];
+    if (!serviceId) continue;
+    if (catSlug !== currentCategory) {
+      currentCategory = catSlug;
+      order = 0;
     }
+    order += 1;
+    await prisma.price.create({
+      data: {
+        serviceId,
+        categoryId: categoryBySlug[catSlug] ?? null,
+        nameTr,
+        nameEn: nameTr,
+        unit,
+        basePrice,
+        isActive: true,
+        order,
+      },
+    });
   }
 
   // ---- FAQs ----

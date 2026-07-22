@@ -48,73 +48,77 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Aydınlık tema: zemin artık saf beyaz değil, hafif mineral-yeşil bir kâğıt
+   tonunda. Kartlar bunun üzerinde beyaza yakın durduğu için içerik kendini
+   belli ediyor; marka yeşili de daha doygun. */
 :root {
-  --background: oklch(0.982 0.016 205);
-  --foreground: oklch(0.225 0.045 220);
-  --card: oklch(0.998 0.006 205);
-  --card-foreground: oklch(0.225 0.045 220);
-  --popover: oklch(0.998 0.006 205);
-  --popover-foreground: oklch(0.225 0.045 220);
-  --primary: oklch(0.57 0.145 195);
-  --primary-foreground: oklch(0.99 0.012 195);
-  --secondary: oklch(0.935 0.035 205);
-  --secondary-foreground: oklch(0.285 0.07 215);
-  --muted: oklch(0.948 0.024 205);
-  --muted-foreground: oklch(0.47 0.044 215);
-  --accent: oklch(0.88 0.075 185);
-  --accent-foreground: oklch(0.27 0.08 205);
-  --destructive: oklch(0.58 0.20 25);
-  --border: oklch(0.875 0.028 205);
-  --input: oklch(0.875 0.028 205);
-  --ring: oklch(0.57 0.145 195);
-  --chart-1: oklch(0.57 0.145 195);
-  --chart-2: oklch(0.64 0.13 175);
-  --chart-3: oklch(0.60 0.15 235);
-  --chart-4: oklch(0.73 0.15 105);
-  --chart-5: oklch(0.62 0.16 32);
+  --background: oklch(0.968 0.019 172);
+  --foreground: oklch(0.225 0.035 205);
+  --card: oklch(0.998 0.004 175);
+  --card-foreground: oklch(0.225 0.035 205);
+  --popover: oklch(0.998 0.004 175);
+  --popover-foreground: oklch(0.225 0.035 205);
+  --primary: oklch(0.525 0.135 172);
+  --primary-foreground: oklch(0.99 0.012 170);
+  --secondary: oklch(0.928 0.034 176);
+  --secondary-foreground: oklch(0.29 0.055 195);
+  --muted: oklch(0.945 0.024 175);
+  --muted-foreground: oklch(0.475 0.042 197);
+  --accent: oklch(0.902 0.058 168);
+  --accent-foreground: oklch(0.28 0.07 185);
+  --destructive: oklch(0.575 0.205 25);
+  --border: oklch(0.878 0.026 178);
+  --input: oklch(0.878 0.026 178);
+  --ring: oklch(0.525 0.135 172);
+  --chart-1: oklch(0.525 0.135 172);
+  --chart-2: oklch(0.635 0.13 195);
+  --chart-3: oklch(0.585 0.14 235);
+  --chart-4: oklch(0.72 0.15 130);
+  --chart-5: oklch(0.635 0.16 55);
   --radius: 0.75rem;
-  --sidebar: oklch(0.988 0.018 205);
-  --sidebar-foreground: oklch(0.225 0.045 220);
-  --sidebar-primary: oklch(0.57 0.145 195);
-  --sidebar-primary-foreground: oklch(0.99 0.012 195);
-  --sidebar-accent: oklch(0.88 0.075 185);
-  --sidebar-accent-foreground: oklch(0.27 0.08 205);
-  --sidebar-border: oklch(0.875 0.028 205);
-  --sidebar-ring: oklch(0.57 0.145 195);
+  --sidebar: oklch(0.955 0.026 174);
+  --sidebar-foreground: oklch(0.225 0.035 205);
+  --sidebar-primary: oklch(0.525 0.135 172);
+  --sidebar-primary-foreground: oklch(0.99 0.012 170);
+  --sidebar-accent: oklch(0.902 0.058 168);
+  --sidebar-accent-foreground: oklch(0.28 0.07 185);
+  --sidebar-border: oklch(0.878 0.026 178);
+  --sidebar-ring: oklch(0.525 0.135 172);
 }
 
 .dark {
-  --background: oklch(0.255 0.055 230);
-  --foreground: oklch(0.965 0.02 205);
-  --card: oklch(0.315 0.058 225);
-  --card-foreground: oklch(0.965 0.02 205);
-  --popover: oklch(0.315 0.058 225);
-  --popover-foreground: oklch(0.965 0.02 205);
-  --primary: oklch(0.78 0.145 195);
-  --primary-foreground: oklch(0.18 0.05 230);
-  --secondary: oklch(0.405 0.065 220);
-  --secondary-foreground: oklch(0.96 0.024 205);
-  --muted: oklch(0.37 0.052 220);
-  --muted-foreground: oklch(0.80 0.045 205);
-  --accent: oklch(0.50 0.105 205);
-  --accent-foreground: oklch(0.96 0.03 195);
+  /* Soft neutral slate instead of a heavy dark teal — lighter, calmer, not gloomy. */
+  --background: oklch(0.285 0.012 250);
+  --foreground: oklch(0.955 0.008 240);
+  --card: oklch(0.335 0.014 250);
+  --card-foreground: oklch(0.955 0.008 240);
+  --popover: oklch(0.335 0.014 250);
+  --popover-foreground: oklch(0.955 0.008 240);
+  --primary: oklch(0.74 0.13 165);
+  --primary-foreground: oklch(0.20 0.03 250);
+  --secondary: oklch(0.385 0.016 250);
+  --secondary-foreground: oklch(0.955 0.008 240);
+  --muted: oklch(0.365 0.014 250);
+  --muted-foreground: oklch(0.745 0.015 245);
+  --accent: oklch(0.44 0.045 180);
+  --accent-foreground: oklch(0.96 0.02 175);
   --destructive: oklch(0.70 0.18 22);
-  --border: oklch(0.68 0.075 215 / 34%);
-  --input: oklch(0.68 0.075 215 / 36%);
-  --ring: oklch(0.78 0.145 195);
-  --chart-1: oklch(0.78 0.145 195);
-  --chart-2: oklch(0.73 0.14 170);
-  --chart-3: oklch(0.74 0.15 230);
-  --chart-4: oklch(0.80 0.14 90);
-  --chart-5: oklch(0.70 0.17 25);
-  --sidebar: oklch(0.285 0.06 230);
-  --sidebar-foreground: oklch(0.965 0.02 205);
-  --sidebar-primary: oklch(0.78 0.145 195);
-  --sidebar-primary-foreground: oklch(0.18 0.05 230);
-  --sidebar-accent: oklch(0.45 0.08 215);
-  --sidebar-accent-foreground: oklch(0.96 0.03 195);
-  --sidebar-border: oklch(0.68 0.075 215 / 34%);
-  --sidebar-ring: oklch(0.78 0.145 195);
+  --border: oklch(0.72 0.02 250 / 20%);
+  --input: oklch(0.72 0.02 250 / 24%);
+  --ring: oklch(0.74 0.13 165);
+  --chart-1: oklch(0.74 0.13 165);
+  --chart-2: oklch(0.72 0.12 190);
+  --chart-3: oklch(0.70 0.13 240);
+  --chart-4: oklch(0.78 0.13 120);
+  --chart-5: oklch(0.72 0.15 40);
+  --sidebar: oklch(0.315 0.013 250);
+  --sidebar-foreground: oklch(0.955 0.008 240);
+  --sidebar-primary: oklch(0.74 0.13 165);
+  --sidebar-primary-foreground: oklch(0.20 0.03 250);
+  --sidebar-accent: oklch(0.40 0.04 180);
+  --sidebar-accent-foreground: oklch(0.96 0.02 175);
+  --sidebar-border: oklch(0.72 0.02 250 / 20%);
+  --sidebar-ring: oklch(0.74 0.13 165);
 }
 
 @layer base {
@@ -123,24 +127,31 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Üstte marka yeşilinden gelen hafif bir aydınlanma, aşağı doğru sakin
+       zemine iniyor — düz tek renk beyaz yerine derinlik veriyor. */
     background:
+      radial-gradient(
+        70rem 40rem at 50% -10%,
+        color-mix(in oklch, var(--background) 78%, var(--primary) 22%) 0%,
+        transparent 70%
+      ),
       linear-gradient(
         180deg,
-        color-mix(in oklch, var(--background) 84%, var(--accent) 16%) 0%,
-        var(--background) 38%,
-        color-mix(in oklch, var(--background) 92%, var(--secondary) 8%) 100%
+        color-mix(in oklch, var(--background) 86%, var(--primary) 14%) 0%,
+        var(--background) 34%
       );
+    background-attachment: fixed;
     font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   }
 
   .dark body {
     background:
       linear-gradient(
-        155deg,
-        color-mix(in oklch, var(--background) 72%, oklch(0.52 0.12 210) 28%) 0%,
-        var(--background) 46%,
-        color-mix(in oklch, var(--background) 78%, oklch(0.42 0.10 180) 22%) 100%
+        180deg,
+        color-mix(in oklch, var(--background) 90%, white 10%) 0%,
+        var(--background) 40%
       );
+    background-attachment: fixed;
   }
   h1,
   h2,

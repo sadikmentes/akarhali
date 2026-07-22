@@ -1,13 +1,14 @@
 "use client";
 
 import { Phone } from "lucide-react";
-import { InstagramIcon } from "@/components/shared/social-icons";
-import { cn } from "@/lib/utils";
+import { FacebookIcon, InstagramIcon } from "@/components/shared/social-icons";
+import { cn, whatsappHref, telHref } from "@/lib/utils";
 
 type FloatingButtonsProps = {
   whatsapp?: string | null;
   phone?: string | null;
   instagram?: string | null;
+  facebook?: string | null;
 };
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -18,9 +19,22 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function FloatingButtons({ whatsapp, phone, instagram }: FloatingButtonsProps) {
+export function FloatingButtons({ whatsapp, phone, instagram, facebook }: FloatingButtonsProps) {
+  const waUrl = whatsappHref(whatsapp);
+  const telUrl = telHref(phone);
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-3">
+      {facebook && (
+        <a
+          href={facebook}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook üzerinden ulaşın"
+          className="flex size-14 items-center justify-center rounded-full bg-[#1877F2] text-white shadow-lg transition-transform hover:scale-110"
+        >
+          <FacebookIcon className="size-6" />
+        </a>
+      )}
       {instagram && (
         <a
           href={instagram}
@@ -35,9 +49,9 @@ export function FloatingButtons({ whatsapp, phone, instagram }: FloatingButtonsP
           <InstagramIcon className="size-6" />
         </a>
       )}
-      {whatsapp && (
+      {waUrl && (
         <a
-          href={whatsapp}
+          href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="WhatsApp üzerinden ulaşın"
@@ -46,9 +60,9 @@ export function FloatingButtons({ whatsapp, phone, instagram }: FloatingButtonsP
           <WhatsAppIcon className="size-7" />
         </a>
       )}
-      {phone && (
+      {telUrl && (
         <a
-          href={`tel:${phone}`}
+          href={telUrl}
           aria-label="Bizi arayın"
           className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 sm:hidden"
         >

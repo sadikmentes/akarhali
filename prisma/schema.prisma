@@ -45,15 +45,20 @@ model Service {
   slug        String   @unique
   titleTr     String
   titleEn     String
-  descriptionTr String? 
-  descriptionEn String? 
+  descriptionTr String?
+  descriptionEn String?
   icon        String?
   image       String?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
+  parentId    String?
+  parent      Service?  @relation("ServiceTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Service[] @relation("ServiceTree")
   prices      Price[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([parentId])
 }
 
 model Category {
@@ -120,8 +125,24 @@ enum GalleryCategory {
   CARPET
   SOFA
   CURTAIN
+  YATAK
+  YORGAN
+  BATTANIYE
+  SANDALYE
+  YASTIK
   BEFORE
   AFTER
+}
+
+model HeroSlide {
+  id        String   @id @default(cuid())
+  url       String
+  publicId  String
+  titleTr   String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GalleryImage {
@@ -148,8 +169,30 @@ model SiteSettings {
   heroSubtitleEn     String?
   aboutTitleTr       String?
   aboutTitleEn       String?
-  aboutContentTr     String?  
-  aboutContentEn     String?  
+  aboutContentTr     String?
+  aboutContentEn     String?
+  aboutImage         String?
+  heroVideoUrl       String?
+  featuresTitleTr    String?
+  featuresSubtitleTr String?
+  feature1TitleTr    String?
+  feature1DescTr     String?
+  feature2TitleTr    String?
+  feature2DescTr     String?
+  feature3TitleTr    String?
+  feature3DescTr     String?
+  feature4TitleTr    String?
+  feature4DescTr     String?
+  processTitleTr     String?
+  processSubtitleTr  String?
+  process1TitleTr    String?
+  process1DescTr     String?
+  process2TitleTr    String?
+  process2DescTr     String?
+  process3TitleTr    String?
+  process3DescTr     String?
+  process4TitleTr    String?
+  process4DescTr     String?
   statsYearsExp      Int?     @default(10)
   statsHappyClients  Int?     @default(5000)
   statsProjectsDone  Int?     @default(12000)
@@ -163,6 +206,7 @@ model SiteSettings {
 model ContactInfo {
   id            String   @id @default("singleton")
   phone         String?
+  phone2        String?
   whatsapp      String?
   email         String?
   addressTr     String?

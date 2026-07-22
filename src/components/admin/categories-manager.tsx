@@ -82,7 +82,6 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>Ad</TableHead>
-              <TableHead>Slug</TableHead>
               <TableHead className="text-right">İşlemler</TableHead>
             </TableRow>
           </TableHeader>
@@ -90,7 +89,6 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
             {items.map((category) => (
               <TableRow key={category.id}>
                 <TableCell>{category.nameTr}</TableCell>
-                <TableCell className="text-muted-foreground">{category.slug}</TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"

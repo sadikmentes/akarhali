@@ -1,93 +1,56 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Badge } from "@/components/ui/badge";
 import { PageHero } from "@/components/shared/page-hero";
 import { Container } from "@/components/shared/container";
-import { priceService } from "@/services/price.service";
-import { serviceService } from "@/services/service.service";
+import { PriceListView, type PriceGroup } from "@/components/price-list/price-list-view";
+import { priceService, categoryService } from "@/services/price.service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("priceList");
   return { title: t("title"), description: t("subtitle") };
 }
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
-    currency: "TRY",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 export default async function PriceListPage() {
   const t = await getTranslations("priceList");
-  const [prices, services] = await Promise.all([
+  const [prices, categories] = await Promise.all([
     priceService.listActive(),
-    serviceService.listActive(),
+    categoryService.list(),
   ]);
 
-  const grouped = services
-    .map((service) => ({
-      service,
-      prices: prices.filter((p) => p.serviceId === service.id),
+  // Group active prices under their category, preserving category order and
+  // dropping categories that have no prices to show.
+  const groups: PriceGroup[] = categories
+    .map((category) => ({
+      id: category.id,
+      slug: category.slug,
+      name: category.nameTr,
+      rows: prices
+        .filter((price) => price.categoryId === category.id)
+        .map((price) => ({
+          id: price.id,
+          name: price.nameTr,
+          unit: price.unit,
+          basePrice: Number(price.basePrice),
+          discountPrice: price.discountPrice != null ? Number(price.discountPrice) : null,
+          isCampaignActive: price.isCampaignActive,
+        })),
     }))
-    .filter((g) => g.prices.length > 0);
+    .filter((group) => group.rows.length > 0);
 
   return (
     <>
       <PageHero title={t("title")} subtitle={t("subtitle")} />
-      <Container className="space-y-12">
-        {grouped.map(({ service, prices: servicePrices }) => {
-          const serviceTitle = service.titleTr;
-          return (
-            <div key={service.id}>
-              <h2 className="mb-4 text-xl font-bold">{serviceTitle}</h2>
-              <div className="overflow-hidden rounded-2xl border">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="p-4 font-semibold">Hizmet</th>
-                      <th className="p-4 font-semibold">{t("unit")}</th>
-                      <th className="p-4 font-semibold">{t("price")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {servicePrices.map((price) => {
-                      const name = price.nameTr;
-                      const unitLabel = price.unit === "M2" ? t("perM2") : t("perPiece");
-                      const hasDiscount = price.isCampaignActive && price.discountPrice;
-                      return (
-                        <tr key={price.id} className="border-t">
-                          <td className="p-4">{name}</td>
-                          <td className="p-4 text-muted-foreground">{unitLabel}</td>
-                          <td className="p-4">
-                            {hasDiscount ? (
-                              <span className="flex items-center gap-2">
-                                <span className="text-muted-foreground line-through">
-                                  {formatPrice(Number(price.basePrice))}
-                                </span>
-                                <span className="font-semibold text-primary">
-                                  {formatPrice(Number(price.discountPrice))}
-                                </span>
-                                <Badge variant="destructive">{t("campaignPrice")}</Badge>
-                              </span>
-                            ) : (
-                              <span className="font-semibold">
-                                {formatPrice(Number(price.basePrice))}
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          );
-        })}
-        {grouped.length === 0 && (
+      <Container>
+        {groups.length === 0 ? (
           <p className="text-center text-muted-foreground">Henüz fiyat eklenmedi.</p>
+        ) : (
+          <>
+            <PriceListView groups={groups} />
+            <p className="mt-10 text-center text-sm text-muted-foreground">
+              * Fiyatlarımız bilgilendirme amaçlıdır ve ürün durumuna göre değişiklik
+              gösterebilir. Güncel fiyat için bizimle iletişime geçebilirsiniz.
+            </p>
+          </>
         )}
       </Container>
     </>

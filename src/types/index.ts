@@ -4,6 +4,7 @@ import type {
   Service,
   Campaign,
   GalleryImage,
+  HeroSlide,
   Faq,
   ContactMessage,
   SiteSettings,
@@ -21,6 +22,7 @@ export type {
   Service,
   Campaign,
   GalleryImage,
+  HeroSlide,
   Faq,
   ContactMessage,
   SiteSettings,
@@ -33,6 +35,11 @@ export type {
 export type PriceWithRelations = Price & {
   service: Service;
   category: Category | null;
+};
+
+// A main service together with its sub-services, used by the public accordion.
+export type ServiceWithChildren = Service & {
+  children: Service[];
 };
 
 export type ApiResponse<T = unknown> = {

@@ -4,7 +4,10 @@ import bcrypt from "bcryptjs";
 import { userRepository } from "@/repositories/user.repository";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: { strategy: "jwt", maxAge: 60 * 60 * 8 },
+  // 1 hour idle timeout: the session expires 1 hour after the last activity.
+  // Any admin request within the window slides it forward (refreshed at most
+  // every 5 minutes); after 1 hour with no activity the user is logged out.
+  session: { strategy: "jwt", maxAge: 60 * 60, updateAge: 60 * 5 },
   pages: { signIn: "/admin/login" },
   trustHost: true,
   providers: [

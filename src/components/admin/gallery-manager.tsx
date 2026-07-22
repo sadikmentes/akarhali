@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader, type UploadedImage } from "@/components/admin/image-uploader";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
-import { GALLERY_CATEGORIES } from "@/constants/site";
+import { GALLERY_CATEGORIES, GALLERY_CATEGORY_LABELS } from "@/constants/site";
 import type { GalleryImage } from "@/types";
 
 export function GalleryManager({ images }: { images: GalleryImage[] }) {
@@ -80,6 +80,7 @@ export function GalleryManager({ images }: { images: GalleryImage[] }) {
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-semibold">Yeni Görsel Yükle</h2>
           <Select
+            items={GALLERY_CATEGORY_LABELS}
             value={uploadCategory}
             onValueChange={(value) => value && setUploadCategory(value)}
           >
@@ -113,6 +114,7 @@ export function GalleryManager({ images }: { images: GalleryImage[] }) {
             </div>
             <div className="p-2">
               <Select
+                items={GALLERY_CATEGORY_LABELS}
                 value={img.category}
                 onValueChange={(value) => value && handleCategoryChange(img, value)}
               >

@@ -51,12 +51,11 @@ export function CategoryFormDialog({
       form.reset(
         editingCategory
           ? {
-              slug: editingCategory.slug,
               nameTr: editingCategory.nameTr,
               nameEn: editingCategory.nameEn,
               order: editingCategory.order,
             }
-          : { slug: "", nameTr: "", nameEn: "", order: 0 }
+          : { nameTr: "", nameEn: "", order: 0 }
       );
     }
   }, [open, editingCategory, form]);
@@ -68,25 +67,12 @@ export function CategoryFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90vh] max-w-[calc(100%-2rem)] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{editingCategory ? "Kategoriyi Düzenle" : "Yeni Kategori"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Slug</FormLabel>
-                  <FormControl>
-                    <Input placeholder="makine-hali" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="nameTr"

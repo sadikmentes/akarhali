@@ -1,24 +1,24 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { UsersManager } from "@/components/admin/users-manager";
-import { userRepository, omitPasswordHash } from "@/repositories/user.repository";
+import { AccountForm } from "@/components/admin/account-form";
+import { userRepository } from "@/repositories/user.repository";
 
-export const metadata = { title: "Kullanıcılar" };
+export const metadata = { title: "Hesap & Şifre" };
 
-export default async function AdminUsersPage() {
+export default async function AdminAccountPage() {
   const session = await auth();
   if (!session) redirect("/admin/login");
 
-  const users = await userRepository.findAll();
-  const safeUsers = users.map(omitPasswordHash);
+  const user = await userRepository.findById(session.user.id);
+  if (!user) redirect("/admin/login");
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Kullanıcı Yönetimi</h1>
-        <p className="text-muted-foreground">Yönetici hesaplarını yönetin.</p>
+        <h1 className="text-2xl font-bold">Hesap & Şifre</h1>
+        <p className="text-muted-foreground">Kullanıcı adınızı ve şifrenizi güncelleyin.</p>
       </div>
-      <UsersManager users={safeUsers} currentUserId={session.user.id} />
+      <AccountForm name={user.name} />
     </div>
   );
 }
