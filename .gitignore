@@ -35,9 +35,7 @@ yarn-error.log*
 !.env.example
 
 # local database and uploaded media
-prisma/*.db
 prisma/*.db-journal
-/public/uploads/
 
 # local tooling and editor state
 /.backup/
