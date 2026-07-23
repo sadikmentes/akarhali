@@ -6,12 +6,14 @@ import { Plus, Pencil, Trash2, CornerDownRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ServiceFormDialog } from "@/components/admin/service-form-dialog";
+import { MainServiceFormDialog } from "@/components/admin/main-service-form-dialog";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import type { Service } from "@/types";
 
 export function ServicesManager({ services }: { services: Service[] }) {
   const [items, setItems] = useState(services);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [mainDialogOpen, setMainDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [defaultParentId, setDefaultParentId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
@@ -75,7 +77,12 @@ export function ServicesManager({ services }: { services: Service[] }) {
     setDeleteTarget(null);
   }
 
-  function openCreate(parentId: string | null) {
+  function openCreateMain() {
+    setEditingService(null);
+    setMainDialogOpen(true);
+  }
+
+  function openCreate(parentId: string) {
     setEditingService(null);
     setDefaultParentId(parentId);
     setDialogOpen(true);
@@ -90,7 +97,7 @@ export function ServicesManager({ services }: { services: Service[] }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={() => openCreate(null)}>
+        <Button onClick={openCreateMain}>
           <Plus className="size-4" />
           Yeni Ana Hizmet
         </Button>
@@ -170,11 +177,19 @@ export function ServicesManager({ services }: { services: Service[] }) {
         </p>
       )}
 
+      <MainServiceFormDialog
+        open={mainDialogOpen}
+        onOpenChange={setMainDialogOpen}
+        allServices={items}
+        onSubmit={handleSubmit}
+      />
+
       <ServiceFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         editingService={editingService}
         mainServices={mainServices}
+        allServices={items}
         defaultParentId={defaultParentId}
         onSubmit={handleSubmit}
       />

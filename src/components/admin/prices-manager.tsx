@@ -17,16 +17,14 @@ import {
 import { PriceFormDialog } from "@/components/admin/price-form-dialog";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import type { PriceInput } from "@/lib/validations/price.schema";
-import type { Category, PriceWithRelations, Service } from "@/types";
+import type { PriceWithRelations, Service } from "@/types";
 
 export function PricesManager({
   prices,
   services,
-  categories,
 }: {
   prices: PriceWithRelations[];
   services: Service[];
-  categories: Category[];
 }) {
   const [items, setItems] = useState(prices);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -110,7 +108,6 @@ export function PricesManager({
             <TableRow>
               <TableHead>Hizmet</TableHead>
               <TableHead>Ad</TableHead>
-              <TableHead>Kategori</TableHead>
               <TableHead>Fiyat</TableHead>
               <TableHead>Kampanya</TableHead>
               <TableHead>Durum</TableHead>
@@ -122,7 +119,6 @@ export function PricesManager({
               <TableRow key={price.id}>
                 <TableCell>{price.service.titleTr}</TableCell>
                 <TableCell>{price.nameTr}</TableCell>
-                <TableCell>{price.category?.nameTr ?? "-"}</TableCell>
                 <TableCell>
                   {price.discountPrice ? (
                     <span className="flex items-center gap-2">
@@ -182,7 +178,7 @@ export function PricesManager({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         services={services}
-        categories={categories}
+        prices={items}
         editingPrice={editingPrice}
         onSubmit={handleSubmit}
       />

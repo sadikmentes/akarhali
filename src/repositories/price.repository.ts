@@ -5,7 +5,7 @@ export const priceRepository = {
   findAll(where?: Prisma.PriceWhereInput) {
     return prisma.price.findMany({
       where,
-      include: { service: true, category: true },
+      include: { service: true },
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
   },
@@ -17,14 +17,14 @@ export const priceRepository = {
   findById(id: string) {
     return prisma.price.findUnique({
       where: { id },
-      include: { service: true, category: true },
+      include: { service: true },
     });
   },
 
   create(data: Prisma.PriceCreateInput) {
     return prisma.price.create({
       data,
-      include: { service: true, category: true },
+      include: { service: true },
     });
   },
 
@@ -32,7 +32,7 @@ export const priceRepository = {
     return prisma.price.update({
       where: { id },
       data,
-      include: { service: true, category: true },
+      include: { service: true },
     });
   },
 
@@ -44,25 +44,7 @@ export const priceRepository = {
     return prisma.price.update({
       where: { id },
       data: { isCampaignActive },
-      include: { service: true, category: true },
+      include: { service: true },
     });
-  },
-};
-
-export const categoryRepository = {
-  findAll() {
-    return prisma.category.findMany({ orderBy: { order: "asc" } });
-  },
-  findById(id: string) {
-    return prisma.category.findUnique({ where: { id } });
-  },
-  create(data: Prisma.CategoryCreateInput) {
-    return prisma.category.create({ data });
-  },
-  update(id: string, data: Prisma.CategoryUpdateInput) {
-    return prisma.category.update({ where: { id }, data });
-  },
-  delete(id: string) {
-    return prisma.category.delete({ where: { id } });
   },
 };

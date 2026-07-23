@@ -3,7 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { PageHero } from "@/components/shared/page-hero";
 import { Container } from "@/components/shared/container";
 import { PriceListView, type PriceGroup } from "@/components/price-list/price-list-view";
-import { priceService, categoryService } from "@/services/price.service";
+import { priceService } from "@/services/price.service";
+import { serviceService } from "@/services/service.service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("priceList");
@@ -12,20 +13,28 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PriceListPage() {
   const t = await getTranslations("priceList");
-  const [prices, categories] = await Promise.all([
+  const [prices, services] = await Promise.all([
     priceService.listActive(),
-    categoryService.list(),
+    serviceService.listActive(),
   ]);
 
-  // Group active prices under their category, preserving category order and
-  // dropping categories that have no prices to show.
-  const groups: PriceGroup[] = categories
-    .map((category) => ({
-      id: category.id,
-      slug: category.slug,
-      name: category.nameTr,
+  const mainServices = services
+    .filter((service) => !service.parentId)
+    .sort((a, b) => a.order - b.order);
+
+  // Group active prices under their (main) service, preserving service order
+  // and dropping services that have no prices to show.
+  const groups: PriceGroup[] = mainServices
+    .map((service) => ({
+      id: service.id,
+      slug: service.slug,
+      name: service.titleTr,
       rows: prices
-        .filter((price) => price.categoryId === category.id)
+        .filter((price) => {
+          const priceService = price.service;
+          const topLevelId = priceService.parentId ?? priceService.id;
+          return topLevelId === service.id;
+        })
         .map((price) => ({
           id: price.id,
           name: price.nameTr,

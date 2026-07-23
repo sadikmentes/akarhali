@@ -61,17 +61,6 @@ model Service {
   @@index([parentId])
 }
 
-model Category {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  nameTr    String
-  nameEn    String
-  order     Int      @default(0)
-  prices    Price[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum PriceUnit {
   M2
   PIECE
@@ -81,8 +70,6 @@ model Price {
   id                String    @id @default(cuid())
   serviceId         String
   service           Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  categoryId        String?
-  category          Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   nameTr            String
   nameEn            String
   unit              PriceUnit @default(M2)
@@ -95,7 +82,6 @@ model Price {
   updatedAt         DateTime  @updatedAt
 
   @@index([serviceId])
-  @@index([categoryId])
 }
 
 // ============================================================

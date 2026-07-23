@@ -110,78 +110,57 @@ async function main() {
     });
   }
 
-  // Broad, customer-facing groupings for the public price list.
-  const categories = [
-    { slug: "hali", nameTr: "Halı Yıkama", nameEn: "Carpet Cleaning", order: 1 },
-    { slug: "koltuk-mobilya", nameTr: "Koltuk & Mobilya", nameEn: "Sofa & Furniture", order: 2 },
-    { slug: "yatak", nameTr: "Yatak Yıkama", nameEn: "Mattress Cleaning", order: 3 },
-    { slug: "yorgan-battaniye", nameTr: "Yorgan & Battaniye", nameEn: "Quilt & Blanket", order: 4 },
-    { slug: "perde", nameTr: "Perde Yıkama", nameEn: "Curtain Cleaning", order: 5 },
-    { slug: "ek-hizmetler", nameTr: "Ek Hizmetler", nameEn: "Additional Services", order: 6 },
-  ];
-
-  for (const c of categories) {
-    await prisma.category.upsert({
-      where: { slug: c.slug },
-      update: { nameTr: c.nameTr, nameEn: c.nameEn, order: c.order },
-      create: c,
-    });
-  }
-
   // ---- Prices: resync from the shop's current price list every run ----
-  // [categorySlug, serviceSlug, nameTr, unit, basePrice]
-  const priceRows: Array<[string, string, string, "M2" | "PIECE", number]> = [
+  // [serviceSlug, nameTr, unit, basePrice] — the public price list groups by
+  // each price's (main) service, so no separate category is needed.
+  const priceRows: Array<[string, string, "M2" | "PIECE", number]> = [
     // Halı Yıkama
-    ["hali", "hali-yikama", "Makine Halı", "M2", 90],
-    ["hali", "hali-yikama", "Akrilik Halı", "M2", 120],
-    ["hali", "hali-yikama", "Shaggy Halı", "M2", 120],
-    ["hali", "hali-yikama", "Step Halı", "M2", 120],
-    ["hali", "hali-yikama", "El Dokuma Halı", "M2", 140],
-    ["hali", "hali-yikama", "Yün Halı", "M2", 150],
-    ["hali", "hali-yikama", "Bambu Halı", "M2", 180],
-    ["hali", "hali-yikama", "Tek Parça Halı", "PIECE", 600],
-    ["hali", "hali-yikama", "Kendin Getir (İndirimli)", "M2", 80],
+    ["hali-yikama", "Makine Halı", "M2", 90],
+    ["hali-yikama", "Akrilik Halı", "M2", 120],
+    ["hali-yikama", "Shaggy Halı", "M2", 120],
+    ["hali-yikama", "Step Halı", "M2", 120],
+    ["hali-yikama", "El Dokuma Halı", "M2", 140],
+    ["hali-yikama", "Yün Halı", "M2", 150],
+    ["hali-yikama", "Bambu Halı", "M2", 180],
+    ["hali-yikama", "Tek Parça Halı", "PIECE", 600],
+    ["hali-yikama", "Kendin Getir (İndirimli)", "M2", 80],
+    ["hali-yikama", "Yerinde Yıkama", "M2", 150],
     // Koltuk & Mobilya
-    ["koltuk-mobilya", "koltuk-yikama", "Koltuk Takımı", "PIECE", 2000],
-    ["koltuk-mobilya", "sandalye-yikama", "Sandalye", "PIECE", 175],
-    ["koltuk-mobilya", "yastik-yikama", "Yastık", "PIECE", 200],
+    ["koltuk-yikama", "Koltuk Takımı", "PIECE", 2000],
+    ["sandalye-yikama", "Sandalye", "PIECE", 175],
+    ["yastik-yikama", "Yastık", "PIECE", 200],
     // Yatak
-    ["yatak", "yatak-yikama", "Tek Kişilik Yatak", "PIECE", 1000],
-    ["yatak", "yatak-yikama", "Çift Kişilik Yatak", "PIECE", 1750],
+    ["yatak-yikama", "Tek Kişilik Yatak", "PIECE", 1000],
+    ["yatak-yikama", "Çift Kişilik Yatak", "PIECE", 1750],
     // Yorgan & Battaniye
-    ["yorgan-battaniye", "yorgan-yikama", "Yün Yorgan", "PIECE", 750],
-    ["yorgan-battaniye", "yorgan-yikama", "Elyaf Yorgan", "PIECE", 600],
-    ["yorgan-battaniye", "yorgan-yikama", "Battaniye", "PIECE", 600],
+    ["yorgan-yikama", "Yün Yorgan", "PIECE", 750],
+    ["yorgan-yikama", "Elyaf Yorgan", "PIECE", 600],
+    ["yorgan-yikama", "Battaniye", "PIECE", 600],
     // Perde
-    ["perde", "perde-yikama", "Stor Perde", "M2", 120],
-    ["perde", "perde-yikama", "Zebra Perde", "M2", 140],
+    ["perde-yikama", "Stor Perde", "M2", 120],
+    ["perde-yikama", "Zebra Perde", "M2", 140],
     // Ek Hizmetler
-    ["ek-hizmetler", "overlok", "Overlok", "M2", 120],
-    ["ek-hizmetler", "hali-yikama", "Yerinde Yıkama", "M2", 150],
+    ["overlok", "Overlok", "M2", 120],
   ];
 
   const serviceBySlug = Object.fromEntries(
     (await prisma.service.findMany()).map((s) => [s.slug, s.id]),
   );
-  const categoryBySlug = Object.fromEntries(
-    (await prisma.category.findMany()).map((c) => [c.slug, c.id]),
-  );
 
   await prisma.price.deleteMany();
   let order = 0;
-  let currentCategory = "";
-  for (const [catSlug, svcSlug, nameTr, unit, basePrice] of priceRows) {
+  let currentService = "";
+  for (const [svcSlug, nameTr, unit, basePrice] of priceRows) {
     const serviceId = serviceBySlug[svcSlug];
     if (!serviceId) continue;
-    if (catSlug !== currentCategory) {
-      currentCategory = catSlug;
+    if (svcSlug !== currentService) {
+      currentService = svcSlug;
       order = 0;
     }
     order += 1;
     await prisma.price.create({
       data: {
         serviceId,
-        categoryId: categoryBySlug[catSlug] ?? null,
         nameTr,
         nameEn: nameTr,
         unit,

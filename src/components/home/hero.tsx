@@ -170,7 +170,7 @@ export function Hero({ title, subtitle, whatsapp, phone, slides }: HeroProps) {
           >
             <Link href="/price-list">
               <Tag className="size-5" />
-              <span className="sr-only sm:not-sr-only">Fiyat Listesi</span>
+              <span>Fiyat Listesi</span>
             </Link>
           </Button>
         </motion.div>

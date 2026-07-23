@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { slugify } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -30,13 +32,25 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { priceSchema, type PriceInput, type PriceFormInput } from "@/lib/validations/price.schema";
-import type { Category, PriceWithRelations, Service } from "@/types";
+import type { PriceWithRelations, Service } from "@/types";
+
+const NEW_SERVICE = "__new__";
+
+// Ensures a client-generated service slug doesn't collide with an existing one.
+function uniqueServiceSlug(base: string, services: Service[]) {
+  const root = base || "hizmet";
+  const taken = new Set(services.map((s) => s.slug));
+  if (!taken.has(root)) return root;
+  let i = 2;
+  while (taken.has(`${root}-${i}`)) i += 1;
+  return `${root}-${i}`;
+}
 
 type PriceFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   services: Service[];
-  categories: Category[];
+  prices: PriceWithRelations[];
   editingPrice?: PriceWithRelations | null;
   onSubmit: (values: PriceInput) => Promise<void>;
 };
@@ -45,15 +59,27 @@ export function PriceFormDialog({
   open,
   onOpenChange,
   services,
-  categories,
+  prices,
   editingPrice,
   onSubmit,
 }: PriceFormDialogProps) {
+  const [serviceMode, setServiceMode] = useState<"existing" | "new">("existing");
+  const [newServiceName, setNewServiceName] = useState("");
+  const [isCreatingService, setIsCreatingService] = useState(false);
+
+  // The dropdown should only offer top-level service categories, not every
+  // leaf service ever created. If the price being edited already points at a
+  // leaf service, keep it selectable so its current value isn't lost.
+  const mainServices = services.filter((s) => !s.parentId && s.isActive);
+  const selectableServices =
+    editingPrice && !mainServices.some((s) => s.id === editingPrice.serviceId)
+      ? [...mainServices, ...services.filter((s) => s.id === editingPrice.serviceId)]
+      : mainServices;
+
   const form = useForm<PriceFormInput, unknown, PriceInput>({
     resolver: zodResolver(priceSchema),
     defaultValues: {
       serviceId: "",
-      categoryId: null,
       nameTr: "",
       nameEn: "",
       unit: "M2",
@@ -65,21 +91,22 @@ export function PriceFormDialog({
     },
   });
   const serviceId = form.watch("serviceId");
-  const categoryId = form.watch("categoryId");
   const unit = form.watch("unit");
   const selectedServiceName =
     services.find((service) => service.id === serviceId)?.titleTr ?? "";
-  const selectedCategoryName =
-    categories.find((category) => category.id === categoryId)?.nameTr ?? "Yok";
   const selectedUnitName = unit === "PIECE" ? "Adet" : "m²";
 
   useEffect(() => {
     if (open) {
+      setServiceMode("existing");
+      setNewServiceName("");
+      // New prices are appended after everything else so they show up at the
+      // bottom of the list instead of jumping to the top via createdAt.
+      const nextOrder = prices.length > 0 ? Math.max(...prices.map((p) => p.order)) + 1 : 0;
       form.reset(
         editingPrice
           ? {
               serviceId: editingPrice.serviceId,
-              categoryId: editingPrice.categoryId,
               nameTr: editingPrice.nameTr,
               nameEn: editingPrice.nameEn,
               unit: editingPrice.unit,
@@ -92,8 +119,7 @@ export function PriceFormDialog({
               order: editingPrice.order,
             }
           : {
-              serviceId: services[0]?.id ?? "",
-              categoryId: null,
+              serviceId: mainServices[0]?.id ?? "",
               nameTr: "",
               nameEn: "",
               unit: "M2",
@@ -101,14 +127,38 @@ export function PriceFormDialog({
               discountPrice: null,
               isCampaignActive: false,
               isActive: true,
-              order: 0,
+              order: nextOrder,
             }
       );
     }
-  }, [open, editingPrice, form, services]);
+  }, [open, editingPrice, form, services, prices]);
 
   async function handleSubmit(values: PriceInput) {
-    await onSubmit(values);
+    let serviceId = values.serviceId;
+
+    if (serviceMode === "new") {
+      const name = newServiceName.trim();
+      if (!name) {
+        form.setError("serviceId", { message: "Hizmet adı gerekli" });
+        return;
+      }
+      setIsCreatingService(true);
+      const slug = uniqueServiceSlug(slugify(name), services);
+      const res = await fetch("/api/services", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, titleTr: name, titleEn: name, order: 0, isActive: true }),
+      });
+      const json = await res.json();
+      setIsCreatingService(false);
+      if (!res.ok || !json.success) {
+        toast.error(json.error ?? "Hizmet oluşturulamadı");
+        return;
+      }
+      serviceId = json.data.id;
+    }
+
+    await onSubmit({ ...values, serviceId });
     onOpenChange(false);
   }
 
@@ -125,54 +175,50 @@ export function PriceFormDialog({
               name="serviceId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hizmet</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Hizmet</FormLabel>
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-primary hover:underline"
+                      onClick={() => {
+                        if (serviceMode === "existing") {
+                          setServiceMode("new");
+                          field.onChange(NEW_SERVICE);
+                        } else {
+                          setServiceMode("existing");
+                          field.onChange(mainServices[0]?.id ?? "");
+                        }
+                      }}
+                    >
+                      {serviceMode === "existing" ? "+ Yeni hizmet ekle" : "Var olan hizmetten seç"}
+                    </button>
+                  </div>
+                  {serviceMode === "new" ? (
                     <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Hizmet seçin">
-                          {selectedServiceName || "Hizmet seçin"}
-                        </SelectValue>
-                      </SelectTrigger>
+                      <Input
+                        placeholder="Yeni hizmet adı"
+                        value={newServiceName}
+                        onChange={(e) => setNewServiceName(e.target.value)}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      {services.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>
-                          {s.titleTr}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Kategori (opsiyonel)</FormLabel>
-                  <Select
-                    value={field.value ?? "none"}
-                    onValueChange={(v) => field.onChange(v === "none" ? null : v)}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Kategori seçin">
-                          {selectedCategoryName}
-                        </SelectValue>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">Yok</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nameTr}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  ) : (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Hizmet seçin">
+                            {selectedServiceName || "Hizmet seçin"}
+                          </SelectValue>
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectableServices.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>
+                            {s.titleTr}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -192,42 +238,27 @@ export function PriceFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="unit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Birim</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue>{selectedUnitName}</SelectValue>
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="M2">m²</SelectItem>
-                        <SelectItem value="PIECE">Adet</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sıra</FormLabel>
+            <FormField
+              control={form.control}
+              name="unit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Birim</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <Input type="number" {...field} value={field.value as number} />
+                      <SelectTrigger className="w-full">
+                        <SelectValue>{selectedUnitName}</SelectValue>
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    <SelectContent>
+                      <SelectItem value="M2">m²</SelectItem>
+                      <SelectItem value="PIECE">Adet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
@@ -301,8 +332,10 @@ export function PriceFormDialog({
               >
                 İptal
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting && <Loader2 className="size-4 animate-spin" />}
+              <Button type="submit" disabled={form.formState.isSubmitting || isCreatingService}>
+                {(form.formState.isSubmitting || isCreatingService) && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
                 Kaydet
               </Button>
             </DialogFooter>

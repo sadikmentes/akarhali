@@ -1,6 +1,5 @@
 import type {
   Price,
-  Category,
   Service,
   Campaign,
   GalleryImage,
@@ -18,7 +17,6 @@ export type Locale = "tr" | "en";
 
 export type {
   Price,
-  Category,
   Service,
   Campaign,
   GalleryImage,
@@ -34,7 +32,6 @@ export type {
 
 export type PriceWithRelations = Price & {
   service: Service;
-  category: Category | null;
 };
 
 // A main service together with its sub-services, used by the public accordion.
